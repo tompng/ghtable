@@ -1,0 +1,89 @@
+<meta charset='utf-8'>
+<script src="three.min.js"></script>
+<script src="OrbitControls.js"></script>
+<script>
+const renderer = new THREE.WebGLRenderer({antialias: true})
+const width = 800
+const height = 600
+renderer.set
+renderer.setPixelRatio(2)
+renderer.setSize(width, height)
+const camera = new THREE.PerspectiveCamera(45, width/height, 100, 100000)
+camera.position.z = 2000
+const scene = new THREE.Scene()
+const cube = new THREE.CubeGeometry(1, 1, 1)
+const material = new THREE.MeshLambertMaterial({ color: 0xffffff })
+onload=function(){
+  'use strict'
+  document.body.appendChild(renderer.domElement)
+  const controls = new THREE.OrbitControls(camera, renderer.domElement)
+  const light = new THREE.DirectionalLight(0xffffff)
+  light.position.set(1, 2, 3).normalize()
+  scene.add(light)
+  const light2 = new THREE.DirectionalLight(0x888888)
+  light2.position.set(-3, -1, -2).normalize()
+  scene.add(light2)
+  gen()
+  function animate() {
+    renderer.render(scene, camera)
+    controls.update()
+    requestAnimationFrame(animate)
+  }
+  animate()
+}
+function box(x1,y1,z1,x2,y2,z2){
+  let tmp
+  if (x1 > x2) { tmp = x1; x1 = x2; x2 = tmp }
+  if (y1 > y2) { tmp = y1; y1 = y2; y2 = tmp }
+  if (z1 > z2) { tmp = z1; z1 = z2; z2 = tmp }
+  z1 -= 350
+  z2 -= 350
+  tmp=y1;y1=z1;z1=tmp
+  tmp=y2;y2=z2;z2=tmp
+
+  const material = new THREE.MeshLambertMaterial({ color: 0x10101 * Math.floor(0xaa+0x55*Math.random()) })
+  var mesh = new THREE.Mesh(cube, material)
+  mesh.position.set((x1+x2)/2, (y1+y2)/2, (z1+z2)/2)
+  mesh.scale.set(x2-x1, y2-y1, z2-z1)
+  mesh.castShadow = mesh.receiveShadow = true
+  scene.add(mesh)
+  return mesh
+}
+function gen(){
+  const spf1 = 19
+  const spf2 = 38
+  const spf3 = 65
+  const spf4 = 89
+  const spf8 = 184
+  const wx = 1600
+  const wy = (spf8-24)*5 // 800
+  // const wy = (spf4-6)+(spf8-6)*4 // 795
+  // const wy = (spf4-9)*10 // 800
+  // const wy = (spf8-9)*4 // 700
+  // const wy = (spf4-11)*9 // 702
+
+
+  console.error(wx, wy)
+  h = 700
+  spfL = spf4 - 6
+  spfS = spf2
+  lh = h - spf1
+  lx = wx - 2 * spf4 - 40
+  ly = wy - 2 * spf2 - 40
+  box(-wx/2, -wy/2, h-spf1, wx/2, wy/2, h)
+  box(-lx/2, -ly/2, 0, -lx/2-spfL, -ly/2-spfS, lh)
+  box(-lx/2, +ly/2, 0, -lx/2-spfL, +ly/2+spfS, lh)
+  box(+lx/2, -ly/2, 0, +lx/2+spfL, -ly/2-spfS, lh)
+  box(+lx/2, +ly/2, 0, +lx/2+spfL, +ly/2+spfS, lh)
+
+  box(-lx/2, -ly/2, 0, -lx/2-spfL, ly/2, spfS)
+  box(+lx/2, -ly/2, 0, +lx/2+spfL, ly/2, spfS)
+  box(-lx/2, -ly/2, lh, -lx/2-spfL, ly/2, lh-spfS)
+  box(+lx/2, -ly/2, lh, +lx/2+spfL, ly/2, lh-spfS)
+
+  box(-lx/2, -spfL/2, lh, +lx/2, +spfL/2, lh-spfS)
+  box(-lx/2, -ly/2-spfS, lh, lx/2, -ly/2-spfS+spfL, lh-spfS)
+  box(-lx/2, +ly/2+spfS, lh, lx/2, +ly/2+spfS-spfL, lh-spfS)
+
+}
+</script>
