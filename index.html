@@ -37,7 +37,36 @@ const SPF3 = 65
 const SPF4 = 89
 const SPF8 = 184
 const woods = {}
-function box(x1,y1,z1,x2,y2,z2){
+function trapezoidGeometry(x,y,z,x2,y2,z2,tx,tz){
+  const geom = new THREE.BufferGeometry()
+  const positions = [
+    // x,y,z,x,y2,z,x2,y2,z,x2,y,z,
+    // x+tw,y+th,z2,x+tw,y2-th,z2,x2-tw,y2-th,z2,x2-tw,y+th,z2,
+    // x,y,z,x+tx,y2,z+tz,x2-tx,y2,z+tz,x2,y,z,
+    // x,y,z2,x+tx,y2,z2-tz,x2-tx,y2,z2-tz,x2,y,z2,
+    x+tx,y,z+tz,x,y2,z,x2,y2,z,x2-tx,y,z+tz,
+    x+tx,y,z2-tz,x,y2,z2,x2,y2,z2,x2-tx,y,z2-tz,
+  ]
+  const indices = [
+    0,1,2,0,2,3,
+    4,6,5,4,7,6,
+    0,4,1,1,4,5,1,5,2,2,5,6,
+    2,6,3,3,6,7,3,7,0,0,7,4
+  ]
+  const vertices=[]
+  for(const i of indices){
+    vertices.push(positions[3*i])
+    vertices.push(positions[3*i+1])
+    vertices.push(positions[3*i+2])
+  }
+  console.error(positions)
+  geom.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+  geom.computeVertexNormals()
+  geom.computeFaceNormals()
+  window.geom=geom
+  return geom
+}
+function box(x1,y1,z1,x2,y2,z2,tw,th){
   const a=Math.abs(x2-x1), b=Math.abs(y2-y1), c=Math.abs(z2-z1)
   const spflen=Math.max(a,b,c), spfh = Math.min(a,b,c), spfw = a+b+c-spflen-spfh
   const wood = '(' + [spfh, spfw, spflen] + ')'
@@ -53,9 +82,14 @@ function box(x1,y1,z1,x2,y2,z2){
   tmp=y2;y2=z2;z2=tmp
 
   const material = new THREE.MeshLambertMaterial({ color: 0x10101 * Math.floor(0xaa+0x55*Math.random()) })
-  var mesh = new THREE.Mesh(cube, material)
-  mesh.position.set((x1+x2)/2, (y1+y2)/2, (z1+z2)/2)
-  mesh.scale.set(x2-x1, y2-y1, z2-z1)
+  let mesh
+  if (tw || th) {
+    mesh = new THREE.Mesh(trapezoidGeometry(x1,y1,z1,x2,y2,z2,tw,th), material)
+  } else {
+    mesh = new THREE.Mesh(cube, material)
+    mesh.position.set((x1+x2)/2, (y1+y2)/2, (z1+z2)/2)
+    mesh.scale.set(x2-x1, y2-y1, z2-z1)
+  }
   mesh.castShadow = mesh.receiveShadow = true
   scene.add(mesh)
   return mesh
@@ -87,9 +121,16 @@ function gen(){
   box(-lx/2, -ly/2, lh, -lx/2-spfL, ly/2, lh-spfS)
   box(+lx/2, -ly/2, lh, +lx/2+spfL, ly/2, lh-spfS)
 
-  box(-lx/2, -spfL/2, lh, +lx/2, +spfL/2, lh-spfS)
-  box(-lx/2, -ly/2-spfS, lh, lx/2, -ly/2-spfS+spfL, lh-spfS)
-  box(-lx/2, +ly/2+spfS, lh, lx/2, +ly/2+spfS-spfL, lh-spfS)
+  if(Math.random()<0.5){
+    alert('ver1')
+    box(-lx/2, -spfL/2, lh, +lx/2, +spfL/2, lh-spfS)
+    box(-lx/2, -ly/2-spfS, lh, lx/2, -ly/2-spfS+spfL, lh-spfS)
+    box(-lx/2, +ly/2+spfS, lh, lx/2, +ly/2+spfS-spfL, lh-spfS)
+  } else {
+    alert('ver2')
+    box(-lx/2+spfS, (-ly/2-spfS)*2/3, lh, lx/2-spfS, (-ly/2-spfS)*2/3+spfL, lh-spfS, 2*spfS, 0)
+    box(-lx/2+spfS, (+ly/2+spfS)*2/3, lh, lx/2-spfS, (+ly/2+spfS)*2/3-spfL, lh-spfS, 2*spfS, 0)
+  }
   for (const wood in woods) {
       console.error(wood + 'x' + woods[wood])
   }
