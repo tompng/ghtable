@@ -121,15 +121,15 @@ function gen(){
   box(-lx/2, -ly/2, lh, -lx/2-spfL, ly/2, lh-spfS)
   box(+lx/2, -ly/2, lh, +lx/2+spfL, ly/2, lh-spfS)
 
-  if(Math.random()<0.5){
-    alert('ver1')
+  if(location.search.match(/ver=2/)){
+    box(-lx/2+spfS, (-ly/2-spfS)*2/3, lh, lx/2-spfS, (-ly/2-spfS)*2/3+spfL, lh-spfS, 2*spfS, 0)
+    box(-lx/2+spfS, (+ly/2+spfS)*2/3, lh, lx/2-spfS, (+ly/2+spfS)*2/3-spfL, lh-spfS, 2*spfS, 0)
+  } else if(location.search.match(/ver=1/)) {
     box(-lx/2, -spfL/2, lh, +lx/2, +spfL/2, lh-spfS)
     box(-lx/2, -ly/2-spfS, lh, lx/2, -ly/2-spfS+spfL, lh-spfS)
     box(-lx/2, +ly/2+spfS, lh, lx/2, +ly/2+spfS-spfL, lh-spfS)
   } else {
-    alert('ver2')
-    box(-lx/2+spfS, (-ly/2-spfS)*2/3, lh, lx/2-spfS, (-ly/2-spfS)*2/3+spfL, lh-spfS, 2*spfS, 0)
-    box(-lx/2+spfS, (+ly/2+spfS)*2/3, lh, lx/2-spfS, (+ly/2+spfS)*2/3-spfL, lh-spfS, 2*spfS, 0)
+    location.search = 'ver=1'
   }
   for (const wood in woods) {
       console.error(wood + 'x' + woods[wood])
